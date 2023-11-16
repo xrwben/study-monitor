@@ -1,0 +1,17 @@
+{
+  "name": "@tencent/aegis-rn-sdk",
+  "version": "1.37.1",
+  "author": "zeyqiao <zeyqiao@tencent.com>",
+  "description": "aegis sdk for React-Native application",
+  "main": "lib/aegis.min",
+  "types": "lib/packages/rn-sdk/src/index.d.ts",
+  "buildOptions": {
+    "name": "Aegis",
+    "format": "umd"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "react-native": "^0.63.2"
+  },
+  "gitHead": "6af816b791a1e47f114c575ecc1b3b165d9e7e0e"
+}

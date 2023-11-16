@@ -1,0 +1,115 @@
+/* eslint-disable no-useless-constructor */
+import { Plugin, Config } from 'aegis-core';
+import Aegis, { WebConfig } from '../aegis';
+
+let plugin = new Plugin({ name: 'shadowLog' });
+class FlogCtr {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public constructor(_cfg: any) {
+    console.error('not use this constructor');
+  }
+}
+class ShadowLogCtr {
+  public flog: any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public constructor(_cfg: any) {
+    console.error('not use this constructor');
+  };
+  public destroy() {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public init(_options: any) {};
+}
+// 加载shadowLog
+const loadShadowLog = function (scriptUrl: string, config: WebConfig | Config) {
+  let Flog = FlogCtr;
+  let ShadowLogAegisPlugin = ShadowLogCtr;
+
+  const pluginUrl = config.shadowLog.pluginUrl || scriptUrl;
+
+  const initShadowLog = function (aegis: Aegis) {
+    // 两个构造函数都准备好的时候才开始运行
+    if (!Flog || !ShadowLogAegisPlugin) {
+      return;
+    }
+
+    const { id, uin } = config;
+    const url = Aegis.urls.aegisCollect;
+    const preservedDay = 7; // 保存7天
+
+    try {
+      class ShadowLog extends ShadowLogAegisPlugin {
+        public constructor(config: WebConfig) {
+          super(config);
+        }
+        public init(options: any) {
+          const { namespace } = options;
+
+          const dbConfig: any = {
+            name: namespace,
+          };
+
+          const cfgs: any = {
+            dbConfig,
+            lookupUrl: `${url}/shadowLogAuto?id=${id}&uin=${uin}`,
+            uploadUrl: `${url}/shadowLog`,
+            preservedDay,
+            id,
+            uin,
+            sessionId: Aegis.sessionID,
+          };
+          const flog = new Flog(cfgs);
+          this.flog = flog;
+
+          return super.init(options);
+        }
+        public postMessage(message: any) {
+          const { type, data } = message;
+          // 仅支持通过 flog 写入到 indexedDB 中
+          if (type === 'write') {
+            this.flog.add(data);
+          }
+        }
+        public report() {
+          this.flog.uploadLogs();
+        }
+      }
+      const shadow = new ShadowLog(config.shadowLog);
+      // 抛出 shadowLog 实例，开发者可以通过该实例在实例上做一些操作
+      aegis.lifeCycle?.emit('onShadowLogInit', shadow);
+      aegis.lifeCycle?.on('destroy', () => {
+        if (plugin.countInstance() === 0) {
+          typeof shadow?.destroy === 'function' && shadow.destroy();
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  Aegis.useAsyncPlugin(Aegis.urls.flog, {
+    exportsConstructor: 'Flog',
+    onAegisInitAndPluginLoaded(aegis: Aegis, ExportedConstructor: any) {
+      Flog = ExportedConstructor;
+      initShadowLog(aegis);
+    },
+  });
+
+  Aegis.useAsyncPlugin(pluginUrl, {
+    exportsConstructor: 'ShadowLogAegisPlugin',
+    onAegisInitAndPluginLoaded: (aegis: Aegis, ExportedConstructor: any) => {
+      ShadowLogAegisPlugin = ExportedConstructor;
+      initShadowLog(aegis);
+    },
+  });
+};
+
+if (SHADOW_LOG) {
+  plugin = new Plugin({
+    name: 'shadowLog',
+    onNewAegis(aegis) {
+      loadShadowLog(Aegis.urls.shadowLog, aegis.config);
+    },
+  });
+}
+
+export default plugin;

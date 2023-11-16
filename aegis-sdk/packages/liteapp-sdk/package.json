@@ -1,0 +1,19 @@
+{
+  "name": "@tencent/aegis-liteapp-sdk",
+  "version": "1.0.0",
+  "description": "aegis sdk for liteapp",
+  "author": "wenqizuo <wenqizuo@tencent.com>",
+  "types": "lib/packages/liteapp-sdk/src/index.d.ts",
+  "license": "MIT",
+  "main": "lib/aegis.min",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "buildOptions": {
+    "name": "Aegis",
+    "format": "umd"
+  }
+}

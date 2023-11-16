@@ -1,0 +1,11 @@
+/src
+__tests__
+/lib/packages/cocos-sdk
+/lib/packages/hippy-sdk
+/lib/packages/liteapp-sdk
+/lib/packages/mp-sdk
+/lib/packages/node-sdk
+/lib/packages/quickapp-sdk
+/lib/packages/rn-sdk
+/lib/packages/viola-sdk
+/lib/packages/web-sdk

@@ -1,0 +1,17 @@
+{
+  "name": "@tencent/aegis-viola-sdk",
+  "version": "1.37.1",
+  "author": "pickchen <pickchen@tencent.com>",
+  "description": "aegis sdk for viola application",
+  "main": "lib/aegis.min",
+  "types": "lib/packages/viola-sdk/src/index.d.ts",
+  "buildOptions": {
+    "name": "Aegis",
+    "format": "umd"
+  },
+  "license": "MIT",
+  "gitHead": "6af816b791a1e47f114c575ecc1b3b165d9e7e0e",
+  "devDependencies": {
+    "@tencent/viola-mqq": "^1.2.3"
+  }
+}

@@ -1,0 +1,104 @@
+import Core, { Plugin } from 'aegis-core';
+import { hackXHR, hackFetch, unHackXHR, unHackFetch, HackXHROptions, HackFetchOptions } from '../util/hack-http';
+
+let plugin = new Plugin({ name: 'tjg' });
+
+if (TJG) {
+  let alreadySetTjgHeader = false;
+  // 接入天机阁全链路日志
+  plugin = new Plugin({
+    name: 'tjg',
+    onNewAegis(aegis) {
+      this.setTjgHeader(aegis);
+      console.log('tjg配置在v2版本将会被移除，请谨慎使用！');
+    },
+    setTjgHeader(aegis: any) {
+      // 只重写一次
+      if (alreadySetTjgHeader) return;
+      alreadySetTjgHeader = true;
+      this.overrideFetch(aegis);
+      this.overrideXHR(aegis);
+    },
+    overrideFetch(aegis: any) {
+      const hackFetchOptions: HackFetchOptions = {
+        name: this.name,
+        beforeFetch: (url, option) => {
+          // 同源才注入天机阁头部
+          if (!this.isSameOrigin(url)) return;
+          if (option.headers) {
+            if (option.headers instanceof Headers) {
+              option.headers.append('X-Tjg-Json-Span-Context', this.getTjgHeaderValue(aegis));
+            }
+          } else {
+            option.headers = new Headers({
+              'X-Tjg-Json-Span-Context': this.getTjgHeaderValue(aegis),
+            });
+          }
+        },
+      };
+      this.hackFetchOptions = hackFetchOptions;
+      hackFetch(this.hackFetchOptions);
+    },
+    overrideXHR(aegis: any) {
+      const hackXHROptions: HackXHROptions = {
+        name: this.name,
+        send: (xhr, body) => {
+          // 同源请求才使用tjg
+          if (this.isSameOrigin(xhr.aegisUrl)) {
+            const trace = this.getTjgHeaderValue(aegis);
+            xhr.aegisTjgTrace = trace;
+            xhr.setRequestHeader('X-Tjg-Json-Span-Context', trace);
+          }
+        },
+      };
+      this.hackXHROptions = hackXHROptions;
+      hackXHR(this.hackXHROptions);
+    },
+    getTjgHeaderValue(aegis: any) {
+      return (
+        window.btoa?.(JSON.stringify({
+          ids: {
+            trace_id: {
+              high: this.rand53(),
+              low: this.rand53(),
+            },
+            span_id: this.rand53(),
+            parent_id: 0,
+            flag: 2, // 0代表采样不命中，2代表采样命中
+          },
+          baggages: {
+            aegis_session_id: aegis.sessionID,
+          },
+        }))
+      );
+    },
+    rand53() {
+      return parseInt(
+        new Array(53)
+          .fill(1)
+          .map(() => (Math.random() > 0.5 ? 1 : 0))
+          .join(''),
+        2,
+      );
+    },
+    isSameOrigin(url: string): boolean {
+      // 配置了tjg: { crossOrigin: true } 时直接返回true
+      let openCrossOrigin = false;
+      this.$walk((aegis: Core) => {
+        if (this.$getConfig(aegis).crossOrigin === true) {
+          openCrossOrigin = true;
+        }
+      });
+      if (openCrossOrigin) return true;
+      const a = document.createElement('a');
+      a.href = url;
+      return location.origin === a.origin;
+    },
+    destroy() {
+      this.option.hackXHROptions && unHackXHR(this.option.hackXHROptions);
+      this.option.hackFetchOptions && unHackFetch(this.option.hackFetchOptions);
+    },
+  });
+}
+
+export default plugin;

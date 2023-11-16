@@ -1,0 +1,4 @@
+<view class="report">
+  <!-- test report -->
+  <button class="aegis-btn" bindtap='tapEvent'/>
+</view>

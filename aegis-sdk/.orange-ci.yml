@@ -1,0 +1,244 @@
+git-credential: &git-credential
+  - name: git credential
+    imports: https://git.woa.com/tam/aegis-secret/blob/master/TNPM.txt
+    script:
+      - echo "http://"$GIT_USERNAME":"$GIT_PASSWORD"@git.code.oa.com\nhttps://"$GIT_USERNAME":"$GIT_PASSWORD"@git.code.oa.com" >> ~/.git-credentials
+      - echo "http://"$GIT_USERNAME":"$GIT_PASSWORD"@git.woa.com\nhttps://"$GIT_USERNAME":"$GIT_PASSWORD"@git.woa.com" >> ~/.git-credentials
+      - git config --global credential.helper 'store --file ~/.git-credentials'
+      - git config --global user.email ""$GIT_USERNAME"@tencent.com"
+      - git config --global user.name "$GIT_USERNAME"
+
+# 安装依赖
+install: &install
+  - name: install
+    script: 
+      - tnpm install
+      - tnpm run bootstrap
+    timeout: 600000
+
+# lint
+lint: &lint
+  - name: lint
+    script:
+      - npm run lint
+
+# 普通打包
+build: &build
+  - name: build
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" ]
+    script: npm run build
+
+# 插件动态打包
+plugin-build: &plugin-build
+  - name: plugin-build
+    if: |
+      [ $PACK_TYPE_CHOICE = "DYNAMIC_PACK" ]
+    script: npm run build:webTraverse
+
+# 执行测试用例
+test: &test
+  - name: test
+    script: npm run test
+
+# 企业微信机器人自动 CR
+notice: &notice
+  - name: notify
+    imports: https://git.woa.com/tam/aegis-secret/blob/master/wework-robots.yml
+    type: wework:message
+    options:
+      robot: $OCI_REVIEW_ROBOT
+      message: |
+        > ${CURR_REVIEWER_FOR_AT}
+        > 　
+        > ${ORANGE_MERGE_REQUEST_TITLE}
+        > [${ORANGE_EVENT_URL}](${ORANGE_EVENT_URL})
+        > 　
+        > from ${ORANGE_BUILD_USER}
+
+add-review: &add-review
+  - name: add reviewer x4
+    type: git:review
+    options:
+      type: add-reviewer-from-project-members
+      count: 5
+    exports:
+      reviewersForAt: CURR_REVIEWER_FOR_AT
+
+# 代码 review
+review: &review
+  - name: CR 通过后自动合并
+    type: git:automerge
+    options:
+      mergeType: squash
+    exports:
+      reviewedBy: REVIEWED_BY
+  - name: notify
+    imports: https://git.woa.com/tam/aegis-secret/blob/master/wework-robots.yml
+    type: wework:message
+    options:
+      robot: $OCI_REVIEW_ROBOT
+      message: |
+        > CR 通过后自动合并 <@${ORANGE_BUILD_USER}>
+        > 　
+        > ${ORANGE_MERGE_REQUEST_TITLE}
+        > [${ORANGE_EVENT_URL}](${ORANGE_EVENT_URL})
+        >
+
+        ${REVIEWED_BY}
+
+# 只有普通打包需要发布tnpm
+tnpm-publish: &tnpm-publish
+  - name: tnpm publish
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" ]
+    imports:  https://git.woa.com/tam/aegis-secret/blob/master/TNPM.txt
+    script:
+      - git fetch origin
+      - git checkout ./
+      - git checkout master
+      - git reset --hard
+      - git pull origin master --allow-unrelated-histories
+      - tnpm run publishForOCI
+      - git add --a && git commit -m "chore(oci-release)" && git pull origin master && git push --set-upstream origin master
+
+# 只有普通打包需要发布tnpm
+tnpm-publish-beta: &tnpm-publish-beta
+  - name: tnpm publish
+    if: |
+      [ $PACK_TYPE_CHOICE = "BETA_PACK" ]
+    imports:  https://git.woa.com/tam/aegis-secret/blob/master/TNPM.txt
+    script:
+      - git fetch origin
+      - git checkout ./
+      - git checkout master
+      - git reset --hard
+      - git pull origin master --allow-unrelated-histories
+      - tnpm run publishBetaForOCI
+      - git add --a && git commit -m "chore(oci-release)" && git pull origin master && git push --set-upstream origin master
+
+
+# 移除空的d.ts声明文件
+rm-empty: &rm-empty
+  - name: remove empty d.ts file
+    script:
+      - npm run rmdts
+
+# 发布CDN
+cdn-publish: &cdn-publish
+#   - name: cdn publish choose
+#     type: wework:choice
+#     if: |
+#       [ $PACK_TYPE_CHOICE = "NORMAL_PACK" ]
+#     options:
+#       description: "CDN发布类型? 请谨慎选择!!!"
+#       choices: 
+#         - text: "预发布(推荐)"
+#           key: "PRE_PUBLISH"
+#         - text: "不发布CDN"
+#           key: "NOT_PUBLISH"
+#         - text: "正式发布(需与pumpkincai沟通)"
+#           key: "PRODUCTION_PUBLISH"
+#     exports:
+#       choice: CDN_PUBLISH_CHOICE
+#       chooser: ENV_CHOOSER
+  # 预发布
+  - name: cdn pre publish
+    type: cdn:go
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" -a $ORANGE_TAG_MESSAGE = "pre" ]
+    options:
+      dist: packages/web-sdk/lib/
+      semver: true
+  - name: trigger aegis publish pre
+    imports: https://git.woa.com/tam/aegis-secret/blob/master/TNPM.txt
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" -a $ORANGE_TAG_MESSAGE = "pre" ]
+    script: 
+      - npm run trigger --env=pre --tag=$ORANGE_BRANCH --token=$TOKEN --id=$ID
+  # 正式发布
+  - name: cdn publish
+    type: cdn:go
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" -a $ORANGE_TAG_MESSAGE = "prod" ]
+    options:
+      dist: packages/web-sdk/lib/
+      semver: true
+      latest: true
+  - name: trigger aegis publish prod
+    imports: https://git.woa.com/tam/aegis-secret/blob/master/TNPM.txt
+    if: |
+      [ $PACK_TYPE_CHOICE = "NORMAL_PACK" -a $ORANGE_TAG_MESSAGE = "prod" ]
+    script: 
+      - npm run trigger --env=prod --tag=$ORANGE_BRANCH --token=$TOKEN --id=$ID
+# 发布动态打包CDN，因为打包时间比较长，等待比较久，动态打包CDN就不用choice选择了
+plugin-cdn-publish: &plugin-cdn-publish
+  - name: cdn publish plugin
+    if: |
+      [ $PACK_TYPE_CHOICE = "DYNAMIC_PACK" ]
+    type: cdn:go
+    options:
+      dist: packages/web-sdk/lib/
+      semver: true
+      latest: true
+      maxFileCount: 5000
+
+
+$:
+  tag_push:
+    - git:
+        dotGit: true
+      network: devnet
+      docker:
+        image: csighub.tencentyun.com/ivweb/feflow-demo:latest
+      stages:
+        - name: pack type choice
+          type: wework:choice
+          options:
+            description: "请问想要进行什么CI流程? "
+            choices: 
+              - text: "正常打包发布"
+                key: "NORMAL_PACK"
+              - text: "插件动态打包发布"
+                key: "DYNAMIC_PACK"
+              - text: "发布Beta版本"
+                key: "BETA_PACK"
+          exports:
+            choice: PACK_TYPE_CHOICE
+            chooser: ENV_CHOOSER
+        - *git-credential
+        - *install
+        - *lint
+        - *build
+        - *plugin-build
+        # - *test
+        - *tnpm-publish-beta
+        - *tnpm-publish
+        - *rm-empty
+        - *cdn-publish
+        - *plugin-cdn-publish
+
+  merge_request:
+    - docker:
+        image: csighub.tencentyun.com/ivweb/feflow-demo:latest
+      stages:
+        - *install
+        - *lint
+        - *build
+        - *add-review
+        - *notice
+        # - *test
+  review:
+    - runner:
+        network: idc
+      stages:
+        - *review
+      
+  push:
+    - docker:
+        image: csighub.tencentyun.com/ivweb/feflow-demo:latest
+      stages:
+        - *install
+        - *lint
+        - *build
+        # - *test

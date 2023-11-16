@@ -1,0 +1,14 @@
+{
+  "name": "@tencent/aegis-hippy-sdk",
+  "version": "1.37.1",
+  "description": "aegis sdk for hippy application",
+  "author": "kiddxu <kiddxu@tencent.com>",
+  "main": "lib/aegis.min",
+  "types": "lib/packages/hippy-sdk/src/index.d.ts",
+  "buildOptions": {
+    "name": "Aegis",
+    "format": "umd"
+  },
+  "license": "MIT",
+  "gitHead": "6af816b791a1e47f114c575ecc1b3b165d9e7e0e"
+}

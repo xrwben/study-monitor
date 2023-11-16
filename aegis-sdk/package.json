@@ -1,0 +1,92 @@
+{
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js",
+    "dev:web": "node scripts/dev.js --package=web-sdk",
+    "build:web": "node scripts/build.js --package=web-sdk",
+    "build:webTraverse": "node scripts/build.js --traverse --package=web-sdk",
+    "clean": "node scripts/clean.js",
+    "rmdts": "node scripts/rm-empty-file.js --dir=packages/*/lib/** --filetype=.d.ts",
+    "prettier": "prettier --write --parser typescript 'packages/**/*.ts'",
+    "lint": "eslint --fix --ext .ts,.js packages",
+    "test": "jest",
+    "publishForOCI": "lerna publish --legacy-auth $TNPM_USER_PASS_BASE64 --yes --force-publish --no-git-tag-version",
+    "publishBetaForOCI": "lerna publish --canary --preid beta --legacy-auth $TNPM_USER_PASS_BASE64 --yes --force-publish --no-git-tag-version",
+    "prepublishOnly": "node ./scripts/build.js",
+    "bootstrap": "lerna exec npm install -- --registry=http://r.tnpm.oa.com",
+    "trigger": "node scripts/trigger-aegis.js"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "npm run lint"
+    ]
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.11.5",
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@rollup/plugin-babel": "^5.2.0",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "@tencent/eslint-config-tencent": "^0.5.1",
+    "@types/jest": "^24.0.18",
+    "@types/react-native": "^0.63.1",
+    "@types/weixin-app": "^2.9.1",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
+    "@zerollup/ts-transform-paths": "^1.7.18",
+    "axios": "^0.21.1",
+    "brotli": "^1.3.2",
+    "chalk": "^2.4.2",
+    "core-js": "^3.6.5",
+    "eslint": "^6.7.2",
+    "execa": "^2.0.4",
+    "fs-extra": "^8.1.0",
+    "glob": "^7.1.6",
+    "husky": "^4.2.5",
+    "jest": "^24.9.0",
+    "lerna": "^3.20.0",
+    "lint-staged": "^10.4.2",
+    "minimist": "^1.2.8",
+    "moment": "^2.29.4",
+    "react-native": "^0.63.2",
+    "rollup": "^2.18.1",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^5.1.1",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-uglify": "^6.0.3",
+    "sync-request": "^6.1.0",
+    "ts-jest": "^26.5.3",
+    "ttypescript": "^1.5.12",
+    "typescript": "^3.9.5",
+    "yorkie": "^2.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "header-max-length": [
+        1,
+        "always",
+        72
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.woa.com/TAM/aegis-sdk.git"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,22 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.alwaysShowStatus": true,
+    "eslint.format.enable": true,
+    "eslint.workingDirectories": [
+        { "mode": "auto" }
+    ],
+    "eslint.validate": [
+        "javascript",
+        "typescript"
+    ],
+    "editor.detectIndentation": false,
+    "files.eol": "\n",
+    "cSpell.words": [
+      "imestamp",
+      "tencent",
+      "traceparent"
+    ],
+    "editor.tabSize": 2
+}

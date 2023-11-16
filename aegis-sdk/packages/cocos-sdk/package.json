@@ -1,0 +1,14 @@
+{
+  "name": "@tencent/aegis-cocos-sdk",
+  "version": "1.0.0",
+  "description": "aegis sdk for cocos native application",
+  "author": "mingmerxu <mingmerxu@tencent.com>",
+  "main": "lib/aegis.min",
+  "types": "lib/packages/cocos-sdk/src/index.d.ts",
+  "buildOptions": {
+    "name": "Aegis",
+    "format": "umd"
+  },
+  "license": "MIT",
+  "gitHead": "6af816b791a1e47f114c575ecc1b3b165d9e7e0e"
+}

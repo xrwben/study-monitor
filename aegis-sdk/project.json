@@ -1,0 +1,18 @@
+{
+    "publish": true,
+    "compatible": 0,
+    "bid": 3977,
+    "qversionfrom": "0",
+    "qversionto": "0",
+    "platform": [2, 3],
+    "loadmode": 2,
+    "frequency": 1,
+    "verifyType": 1,
+    "expire_time": 1577836800000,
+    "cdn": "defaultCDN",
+    "note": "",
+    "gray": true,
+    "uins": [
+        { "min": 1052349485, "max": 1052349487 }
+    ]
+}

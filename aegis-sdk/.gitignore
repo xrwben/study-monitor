@@ -1,0 +1,12 @@
+lib
+.DS_Store
+node_modules
+coverage
+temp
+explorations
+TODOs.md
+*.log
+/.idea
+aegis_log/
+package-lock.json
+CHANGELOG.md

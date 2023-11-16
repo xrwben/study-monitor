@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "sourceMap": true,
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "removeComments": false,
+    "declaration": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": [
+      "jest",
+      "node"
+    ],
+    "rootDir": ".",
+    "paths": {
+      "aegis-core":[
+        "packages/core/src"
+      ],
+    },
+    "plugins": [{ "transform": "@zerollup/ts-transform-paths" }]
+  },
+  "include": [
+    "packages/global.d.ts",
+    "packages/creator.d.ts",
+    "packages/*/src",
+    "packages/*/__tests__",
+    "commitlint.config.js"
+  ],
+  "exclude": [
+    "rollup.config.js",
+    "rollup.config.bak.js",
+    "jest.config.js"
+  ]
+}

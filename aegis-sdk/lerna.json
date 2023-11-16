@@ -1,0 +1,26 @@
+{
+  "packages": [
+    "packages/hippy-sdk",
+    "packages/mp-sdk",
+    "packages/node-sdk",
+    "packages/rn-sdk",
+    "packages/viola-sdk",
+    "packages/web-sdk",
+    "packages/quickapp-sdk",
+    "packages/weex-sdk",
+    "packages/cocos-sdk",
+    "packages/liteapp-sdk"
+  ],
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "node_modules",
+        "__tests__"
+      ],
+      "conventionalCommits": true,
+      "message": "chore(release): publish %v"
+    }
+  },
+  "npmClient": "tnpm",
+  "version": "1.40.1"
+}

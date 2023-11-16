@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>demo</title>
+  <!-- <script src="https://tam.cdn-go.cn/aegis-sdk/1/aegis.min.js?bid=3977"></script> -->
+  <!-- <script src="https://tam.cdn-go.cn/aegis-sdk/latest/aegis.min.js?bid=3977"></script> -->
+  <script src="../packages/web-sdk/lib/aegis.min.js"></script>
+  <script>
+    var b = new Aegis({
+      id: 528,
+      aid: true,
+      reportAssetSpeed: true,
+      reportApiSpeed: true,
+      reportBridgeSpeed: true,
+      h5BridgeFunc: ['a'],
+      spa: true,
+      speedSample: false,
+      // delay: 4000,
+    });
+
+    a = new Aegis({
+      id: 1,
+      aid: true,
+      reportAssetSpeed: true,
+      reportApiSpeed: true,
+      reportBridgeSpeed: true,
+      h5BridgeFunc: ['a'],
+      spa: true,
+      speedSample: false,
+      // delay: 4000,
+    });
+    var d = new Aegis({
+      id: 2,
+      aid: true,
+      reportAssetSpeed: true,
+      reportApiSpeed: true,
+      reportBridgeSpeed: true,
+      h5BridgeFunc: ['a'],
+      spa: true,
+      speedSample: false,
+      // delay: 4000,
+    });
+
+    c = new Aegis({
+      id: 3,
+      aid: true,
+      reportAssetSpeed: true,
+      reportApiSpeed: true,
+      reportBridgeSpeed: true,
+      h5BridgeFunc: ['a'],
+      spa: true,
+      speedSample: false,
+      // delay: 4000,
+    });
+    // setTimeout(() => {
+    //   a.destroy();
+    // }, 3000);
+    // a.reportEvent('pumpkincai');
+    // a.infoAll('tttt');
+
+    // 基础功能
+    // a.info('info');
+    // a.infoAll('infoAll');
+    // a.report('report');
+    // a.time('time');
+    // setTimeout(() => {
+    //   a.timeEnd('time');
+    // }, 1000)
+    // a.reportTime('reportTime', 2000);
+
+    // // promise error
+    // new Promise((resolve, reject) => {
+    //   reject('promise error')
+    // })
+
+    // fetch
+    // fetch("http://www.baidu.com/test/index.html")
+
+    // xhr
+    // const xhr = new XMLHttpRequest();
+    // xhr.open("get", "http://www.baidu.com/test/index.html")
+    // xhr.send('1111')
+
+    // throw error
+    // function b() {c()}
+    // function c() {d()}
+    // function d() {throw new Error('test');}
+    // for (let i = 0; i < 10; i++) {
+    //   setTimeout(() => {
+    //     b();
+    //     a.reportTime(`${Math.random()}`, 11)
+    //   }, 0)
+    // }
+    fetch('/').then(() => {
+      console.log(33333333)
+    })
+  </script>
+</head>
+
+<body>
+  <div id="container" name="containeer" class="wrapper cls" aegis-first-screen-timing>
+    <div><span>children</span></div>
+  </div>
+  <!-- <button onclick="info()">info</button>
+  <button onclick="report()">report</button> -->
+  <img
+    src="https://upload.wikimedia.org/wikipedia/en/thumb/6/63/IMG_%28business%29.svg/1200px-IMG_%28business%29.svg.png" />
+  <!-- <img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/63/" /> -->
+</body>
+
+</html>
